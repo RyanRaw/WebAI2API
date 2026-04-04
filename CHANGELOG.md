@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.6.3] - 2025-04-05
+
+### 🐛 Fixed
+- **适配器**
+  - 修复 Gemini 文本适配器遇到长提示词的时候无法选择模型的问题
+
 ## [3.6.2] - 2025-03-31
 
 ### ✨ Added

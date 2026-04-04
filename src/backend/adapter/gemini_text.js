@@ -71,20 +71,9 @@ async function generate(context, prompt, imgPaths, modelId, meta = {}) {
             try {
                 logger.debug('适配器', `准备选择模型: ${modelId}`, meta);
 
-                // 点击输入框确保焦点
-                await inputLocator.focus();
-                await sleep(300, 500);
-
-                // 按 3 次 Tab 键到达模型选择按钮
-                await page.keyboard.press('Tab');
-                await sleep(100, 200);
-                await page.keyboard.press('Tab');
-                await sleep(100, 200);
-                await page.keyboard.press('Tab');
-                await sleep(100, 200);
-
-                // 按回车打开模型菜单
-                await page.keyboard.press('Enter');
+                // 点击打开模型选择菜单
+                const modePickerBtn = page.getByRole('button', { name: 'Open mode picker' });
+                await safeClick(page, modePickerBtn, { bias: 'button' });
                 await sleep(300, 500);
 
                 // 获取所有 menuitem 选项的文本
