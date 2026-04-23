@@ -49,12 +49,17 @@ async function selectModel(page, codeName, meta = {}) {
             await sleep(300, 500);
         }
 
-        // 3. 查找匹配 codeName 开头的 menuitem
-        const targetMenuItem = page.getByRole('menuitem', { name: new RegExp(`^${codeName}`) });
-        const targetExists = await targetMenuItem.count();
+        // 3. 查找匹配 codeName 开头的 menuitem 或 menuitemradio
+        let targetMenuItem = page.getByRole('menuitemradio', { name: new RegExp(`^${codeName}`, 'i') });
+        let targetExists = await targetMenuItem.count();
+        if (targetExists === 0) {
+            targetMenuItem = page.getByRole('menuitem', { name: new RegExp(`^${codeName}`, 'i') });
+            targetExists = await targetMenuItem.count();
+        }
+
         if (targetExists > 0) {
             logger.info('适配器', `正在选择模型: ${codeName}`, meta);
-            await safeClick(page, targetMenuItem, { bias: 'button' });
+            await safeClick(page, targetMenuItem.first(), { bias: 'button' });
             return true;
         } else {
             logger.debug('适配器', `未找到模型 ${codeName}，使用默认模型`, meta);
@@ -94,10 +99,13 @@ async function generate(context, prompt, imgPaths, modelId, meta = {}) {
         await waitForInput(page, INPUT_SELECTOR, { click: false });
 
         // 2. 选择模型
-        const modelConfig = manifest.models.find(m => m.id === modelId);
-        const targetModel = modelConfig?.codeName || modelId;
-        if (targetModel) {
-            await selectModel(page, targetModel, meta);
+        if (modelId) {
+            const modelConfig = manifest.models.find(m => m.id === modelId);
+            if (modelConfig && modelConfig.codeName) {
+                await selectModel(page, modelConfig.codeName, meta);
+            } else {
+                logger.info('适配器', `未指定模型或未知模型 (${modelId})，跳过模型选择`, meta);
+            }
         }
 
         // 3. 上传图片 (双击 Add files and more 按钮)
